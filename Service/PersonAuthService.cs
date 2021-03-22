@@ -34,5 +34,28 @@ namespace person.Service
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
             return  jwtToken ;
         }
+        public bool Validate(string accessToken)
+        {
+            
+            var handler = new JwtSecurityTokenHandler();
+            var para = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKeys = new[] { Key },
+                ValidateLifetime = true
+            };
+            try
+            {
+            var user = handler.ValidateToken(accessToken, para, out SecurityToken securityToken);
+
+            }
+            catch (SecurityTokenValidationException exception)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

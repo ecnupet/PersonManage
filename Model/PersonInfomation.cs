@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace person.Model
 {
+    [Table("PersonInfo")]
     public class PersonInfomation
     {
         /// <summary>
@@ -22,7 +24,7 @@ namespace person.Model
         /// 用户密码
         /// </summary>
         [Description("用户密码")]
-        public string Password { get; set; }
+        public byte[] Password { get; set; }
         /// <summary>
         /// 是否为管理身份
         /// </summary>

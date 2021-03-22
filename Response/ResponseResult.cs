@@ -197,7 +197,7 @@ namespace person.Response
         /// <returns></returns>
         public static ResponseResultModel<Object> Success(string detail = null)
         {
-            return new ResponseResultModel<Object>(ResponseResultEnum.Success, null, detail);
+            return new ResponseResultModel<Object>(ResponseResultEnum.Success, new object(), detail);
         }
 
 
@@ -209,7 +209,7 @@ namespace person.Response
         /// <returns></returns>
         public static ResponseResultModel<Object> Fail(string detail = null)
         {
-            return new ResponseResultModel<Object>(ResponseResultEnum.Fail, null, detail);
+            return new ResponseResultModel<Object>(ResponseResultEnum.Fail, new object(), detail);
         }
 
 
@@ -221,7 +221,7 @@ namespace person.Response
         /// <returns></returns>
         public static ResponseResultModel<Object> Exist(string detail = null)
         {
-            return new ResponseResultModel<Object>(ResponseResultEnum.Exist, null, detail);
+            return new ResponseResultModel<Object>(ResponseResultEnum.Exist, new object(), detail);
         }
 
 
@@ -233,7 +233,7 @@ namespace person.Response
         /// <returns></returns>
         public static ResponseResultModel<Object> NotFound(string detail = null)
         {
-            return new ResponseResultModel<Object>(ResponseResultEnum.NotFound, null, detail);
+            return new ResponseResultModel<Object>(ResponseResultEnum.NotFound, new object(), detail);
         }
 
 
@@ -245,7 +245,7 @@ namespace person.Response
         /// <returns></returns>
         public static ResponseResultModel<Object> Invalid(string detail = null)
         {
-            return new ResponseResultModel<Object>(ResponseResultEnum.Invalid, null, detail);
+            return new ResponseResultModel<Object>(ResponseResultEnum.Invalid, new object(), detail);
         }
 
 
@@ -257,7 +257,7 @@ namespace person.Response
         /// <returns></returns>
         public static ResponseResultModel<Object> Valid(string detail = null)
         {
-            return new ResponseResultModel<Object>(ResponseResultEnum.Valid, null, detail);
+            return new ResponseResultModel<Object>(ResponseResultEnum.Valid, new object(), detail);
         }
 
 
@@ -269,7 +269,7 @@ namespace person.Response
         /// <returns></returns>
         public static ResponseResultModel<Object> Authorized(string detail = null)
         {
-            return new ResponseResultModel<Object>(ResponseResultEnum.Authorized, null, detail);
+            return new ResponseResultModel<Object>(ResponseResultEnum.Authorized, new object(), detail);
         }
 
 
@@ -281,7 +281,7 @@ namespace person.Response
         /// <returns></returns>
         public static ResponseResultModel<Object> Unauthorized(string detail = null)
         {
-            return new ResponseResultModel<Object>(ResponseResultEnum.Unauthorized, null, detail);
+            return new ResponseResultModel<Object>(ResponseResultEnum.Unauthorized, new object(), detail);
         }
 
 
@@ -293,7 +293,7 @@ namespace person.Response
         /// <returns></returns>
         public static ResponseResultModel<Object> TimedOut(string detail = null)
         {
-            return new ResponseResultModel<Object>(ResponseResultEnum.TimedOut, null, detail);
+            return new ResponseResultModel<Object>(ResponseResultEnum.TimedOut, new object(), detail);
         }
     }
 }

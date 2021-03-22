@@ -9,5 +9,6 @@ namespace person.Service
     public interface IPersonAuthService
     {
         public string CreateAuth(string name, int IsBoss);
+        public bool Validate(string accessToken);
     }
 }

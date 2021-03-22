@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,10 +13,13 @@ namespace person.Model
         Unapproved,
         Running,
         Warning,
-        Finished
+        Finished,
+        Cancelled
     }
+    [Table("ProcessHistory")]
     public class ProcessHistory
     {
+        [Key]
         [Column("HID")]
         public int HistroyID { get; set; }
         [Column("UID")]

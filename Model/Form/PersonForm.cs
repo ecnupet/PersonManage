@@ -17,7 +17,7 @@ namespace person.Model
         /// 用户密码
         /// </summary>
         [Description("用户密码")]
-        public string Password { get; set; }
+        public byte[] Password { get; set; }
         /// <summary>
         /// 是否为管理身份
         /// </summary>
@@ -35,7 +35,7 @@ namespace person.Model
         /// 用户密码
         /// </summary>
         [Description("用户密码")]
-        public string Password { get; set; }
+        public byte[] Password { get; set; }
     }
     public class PersonPasswordChangeForm
     {
@@ -48,12 +48,12 @@ namespace person.Model
         /// 原密码
         /// </summary>
         [Description("用户老密码")]
-        public string OldPassword { get; set; }
+        public byte[] OldPassword { get; set; }
         /// <summary>
         /// 新密码
         /// </summary>
         [Description("用户新密码")]
-        public string NewPassword { get; set; }
+        public byte[] NewPassword { get; set; }
     }
     public class PersonInfoUpdateForm
     {

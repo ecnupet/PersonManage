@@ -42,11 +42,11 @@ namespace person.Controllers
         {
             if (_context.PersonInfo.Where(x => x.Name == personLogonForm.Name).Select(x => x).Count() != 0)
             {
-                return Exist<Object>(null, "已存在");
+                return Exist("已存在");
             }
             _context.PersonInfo.AddRange(new PersonInfomation { Name = personLogonForm.Name, Password = personLogonForm.Password, IsBoss = personLogonForm.IsBoss });
             await _context.SaveChangesAsync();
-            return Success<Object>(null, "注册成功");
+            return Success("注册成功");
         }
         /// <summary>
         /// 用户登录（todo:等待前端对接时加入md5转换验证登录）
@@ -56,13 +56,13 @@ namespace person.Controllers
         [HttpPost]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonLogin(PersonLoginForm personLogin)
         {
-
             var result = _context.PersonInfo.Where(x => x.Name == personLogin.Name).Select(x => x);
             if (result.Count() == 0)
             {
                 return NotFound("用户名不存在");
             }
-            else if (result.Where(x => x.Password == personLogin.Password).Count() != 0)
+            var res = result.First();
+            if (PasswordCompare(res.Password,personLogin.Password))
             {
                 var isBoss = result.Select(x => x.IsBoss).FirstOrDefault();
                 var auth = AuthService.CreateAuth(personLogin.Name, isBoss);
@@ -70,6 +70,7 @@ namespace person.Controllers
                 {
                     new Claim(ClaimTypes.Name, personLogin.Name),
                     new Claim("IsBoss", isBoss.ToString()),
+                    new Claim("ID", result.Select(x => x.ID).First().ToString()),
                     new Claim("accesss_token", auth)
                 };
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -99,7 +100,7 @@ namespace person.Controllers
             {
                 return NotFound("用户名不存在");
             }
-            else if (result.Where(x => x.Password == personPasswordChangeForm.OldPassword).Count() != 0)
+            else if (result.Where(x => PasswordCompare(x.Password, personPasswordChangeForm.OldPassword)).Count() != 0)
             {
                 var res = result.First();
                 res.Password = personPasswordChangeForm.NewPassword;
@@ -142,27 +143,19 @@ namespace person.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
-        [HttpGet("{name}")]
-        public ActionResult<ResponseResultModel<PersonInfoUpdateForm>> PersonInfoSearch(String name)
+        [HttpGet]
+        public ActionResult<ResponseResultModel<PersonInfoUpdateForm>> PersonInfoSearch()
         {
-            var requestName = _accessor.HttpContext.User.Identity.Name;
-            
-            if (requestName == name)
+
+            var result = _context.PersonInfo.Where(x => x.Name == _accessor.HttpContext.User.Identity.Name).First();
+            var response = new PersonInfoUpdateForm
             {
-                var result = _context.PersonInfo.Where(x => x.Name == name).First();
-                var response = new PersonInfoUpdateForm
-                {
-                    Name = result.Name,
-                    Apartment = result.Apartment,
-                    Phone = result.Phone,
-                    Sex = result.Sex
-                };
-                return Success<PersonInfoUpdateForm>(response, "获取用户信息成功");
-            }
-            else
-            {
-                return Fail<PersonInfoUpdateForm>(null, "无权访问该用户信息");
-            }
+                Name = result.Name,
+                Apartment = result.Apartment,
+                Phone = result.Phone,
+                Sex = result.Sex
+            };
+            return Success<PersonInfoUpdateForm>(response, "获取用户信息成功");
         }
 
         /// <summary>
@@ -177,15 +170,6 @@ namespace person.Controllers
             return Success("退出登录");
         }
 
-
-        /// <summary>
-        ///  TODO 查看存储流程信息
-        /// </summary>
-
-
-        /// <summary>
-        /// TODO 查看历史记录（包括待处理流程）                                                                                                                                               
-        /// </summary>
 
         /// <summary>
         /// 人员搜索（测试功能）
@@ -222,6 +206,33 @@ namespace person.Controllers
             var claimstype = (from item in Claims where item.Type == JwtRegisteredClaimNames.Email select item.Value).ToList();
 
             return new string[] { JsonConvert.SerializeObject(jwtSecurityToken), sub, name, JsonConvert.SerializeObject(claimstype) };
+        }
+        [Authorize]
+        [HttpGet]
+        public ActionResult<ResponseResultModel<Object>> AuthCheck()
+        {
+            return Success("已授权请求");
+        }
+
+
+        [NonAction]
+        private int SearchUserID(string name) => _context.PersonInfo.Where(x => x.Name == name).Select(x => x.ID).FirstOrDefault();
+        [NonAction]
+        private bool PasswordCompare(byte[] fromDB, byte[] fromWeb)
+        {
+            if(fromWeb.Count()> fromDB.Count())
+            {
+                return false;
+            }
+            
+            for (var i = 0; i < fromWeb.Count();i++)
+            {
+                if(fromWeb[i] != fromDB[i])
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

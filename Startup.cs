@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IdentityServer3.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace person
 {
@@ -36,9 +37,10 @@ namespace person
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            services.AddGrpc(); 
+            services.AddSingleton<IAuthorizationMiddlewareResultHandler, MyAuthorizationMiddlewareResultHandler>();
             services.AddDbContext<PersonContext>(options =>
-                options.UseMySQL(Configuration.GetConnectionString("MySqlConnection")));
+                options.UseMySql(Configuration.GetConnectionString("MySqlConnection")));
             services.AddControllers().AddNewtonsoftJson();
             services.AddScoped<IPersonAuthService, PersonAuthService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -50,7 +52,8 @@ namespace person
                                       builder.SetIsOriginAllowed((host) => true)
                                       .AllowAnyMethod()
                                       .AllowAnyHeader()
-                                      .AllowCredentials();
+                                      .AllowCredentials()
+                                      .WithExposedHeaders("Grpc-Status", "Grpc-Message", "Grpc-Encoding", "Grpc-Accept-Encoding");
                                   });
             });
             var keyBase64 = "494812665@qq.com";
@@ -106,6 +109,7 @@ namespace person
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapGrpcService<PersonInfomationGet>();
                 endpoints.MapControllers();
             });
         }
