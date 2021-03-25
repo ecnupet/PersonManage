@@ -17,7 +17,7 @@ using static person.Response.ResponseResult;
 namespace person.Controllers
 {
 
-    [Route("api/[controller]/[action]")]
+    [Route("api")]
     [ApiController]
     public class PersonController : ControllerBase
     {
@@ -37,14 +37,15 @@ namespace person.Controllers
         /// <returns>
         /// 
         /// </returns>
+        [Route("user/logon")]
         [HttpPost]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonLogon(PersonLogonForm personLogonForm)
         {
-            if (_context.PersonInfo.Where(x => x.Name == personLogonForm.Name).Select(x => x).Count() != 0)
+            if (_context.PersonInfo.Where(x => x.UserName == personLogonForm.Name).Select(x => x).Count() != 0)
             {
                 return Exist("已存在");
             }
-            _context.PersonInfo.AddRange(new PersonInfomation { Name = personLogonForm.Name, Password = personLogonForm.Password, IsBoss = personLogonForm.IsBoss });
+            _context.PersonInfo.AddRange(new PersonInfomation { UserName = personLogonForm.Name, Password = personLogonForm.Password });
             await _context.SaveChangesAsync();
             return Success("注册成功");
         }
@@ -53,10 +54,11 @@ namespace person.Controllers
         /// </summary>
         /// <param name="personLogin"></param>
         /// <returns></returns>
+        [Route("user/login")]
         [HttpPost]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonLogin(PersonLoginForm personLogin)
         {
-            var result = _context.PersonInfo.Where(x => x.Name == personLogin.Name).Select(x => x);
+            var result = _context.PersonInfo.Where(x => x.UserName == personLogin.Name).Select(x => x);
             if (result.Count() == 0)
             {
                 return NotFound("用户名不存在");
@@ -64,13 +66,13 @@ namespace person.Controllers
             var res = result.First();
             if (PasswordCompare(res.Password,personLogin.Password))
             {
-                var isBoss = result.Select(x => x.IsBoss).FirstOrDefault();
-                var auth = AuthService.CreateAuth(personLogin.Name, isBoss);
+                var isAdmin = result.Select(x => x.IsAdmin).FirstOrDefault();
+                var auth = AuthService.CreateAuth(personLogin.Name, isAdmin);
                 var claims = new Claim[]
                 {
                     new Claim(ClaimTypes.Name, personLogin.Name),
-                    new Claim("IsBoss", isBoss.ToString()),
-                    new Claim("ID", result.Select(x => x.ID).First().ToString()),
+                    new Claim("isAdmin", isAdmin.ToString()),
+                    new Claim("Name", result.Select(x => x.UserName).First().ToString()),
                     new Claim("accesss_token", auth)
                 };
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -91,16 +93,22 @@ namespace person.Controllers
         /// </summary>
         /// <param name="personPasswordChangeForm"></param>
         /// <returns></returns>
+        [Route("admin/userinfo")]
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
         [HttpPost]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonChangeSerect(PersonPasswordChangeForm personPasswordChangeForm)
         {
-            var result = _context.PersonInfo.Where(x => x.Name == personPasswordChangeForm.Name).Select(x => x);
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "IsAdmin").First().Value;
+            if (!Convert.ToBoolean(isAdmin))
+            {
+                return Fail("无权更改");
+            }
+            var result = _context.PersonInfo.Where(x => x.UserName == personPasswordChangeForm.Name).Select(x => x);
             if (result.Count() == 0)
             {
                 return NotFound("用户名不存在");
             }
-            else if (result.Where(x => PasswordCompare(x.Password, personPasswordChangeForm.OldPassword)).Count() != 0)
+            else
             {
                 var res = result.First();
                 res.Password = personPasswordChangeForm.NewPassword;
@@ -108,54 +116,30 @@ namespace person.Controllers
                 await _context.SaveChangesAsync();
                 return Success("修改成功");
             }
-            else
-            {
-                return Fail("修改失败");
-            }
         }
 
-        /// <summary>
-        /// 用户信息更新
-        /// </summary>
-        /// <returns></returns>
+        [HttpDelete]
+        [Route("admin/user")]
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
-        [HttpPost]
-        public async Task<ActionResult<ResponseResultModel<Object>>> PersonInfoUpdate(PersonInfoUpdateForm personInfo)
+        public async Task<ActionResult<ResponseResultModel<Object>>> DeleteUser(PersonDeleteForm personDeleteForm)
         {
-            var name = _accessor.HttpContext.User.Identity.Name;
-            if (name == personInfo.Name)
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "IsAdmin").First().Value;
+            if (!Convert.ToBoolean(isAdmin))
             {
-                var result = _context.PersonInfo.Where(x => x.Name == name).Select(x => x).First();
-                result.Sex = personInfo.Sex;
-                result.Phone = personInfo.Phone;
-                result.Apartment = personInfo.Apartment;
+                return Fail("无权更改");
+            }
+            var result = _context.PersonInfo.Where(x => x.UserName == personDeleteForm.UserName).Select(x => x);
+            if (result.Count() == 0)
+            {
+                return NotFound("用户名不存在");
+            }
+            else
+            {
+                var res = result.First();
+                _context.PersonInfo.Remove(res);
                 await _context.SaveChangesAsync();
-                return Success("修改用户信息成功");
+                return Success("修改成功");
             }
-            else
-            {
-                return Fail("无权修改该用户信息");
-            }
-        }
-
-        /// <summary>
-        /// 用户信息
-        /// </summary>
-        /// <returns></returns>
-        [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
-        [HttpGet]
-        public ActionResult<ResponseResultModel<PersonInfoUpdateForm>> PersonInfoSearch()
-        {
-
-            var result = _context.PersonInfo.Where(x => x.Name == _accessor.HttpContext.User.Identity.Name).First();
-            var response = new PersonInfoUpdateForm
-            {
-                Name = result.Name,
-                Apartment = result.Apartment,
-                Phone = result.Phone,
-                Sex = result.Sex
-            };
-            return Success<PersonInfoUpdateForm>(response, "获取用户信息成功");
         }
 
         /// <summary>
@@ -164,6 +148,7 @@ namespace person.Controllers
         /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
         [HttpPost]
+        [Route("user/logout")]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonLogout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -171,52 +156,7 @@ namespace person.Controllers
         }
 
 
-        /// <summary>
-        /// 人员搜索（测试功能）
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        [HttpGet("{id}")]
-        public async Task<ActionResult<PersonInfomation>> PersonSearch(int id)
-        {
-            var person = await _context.PersonInfo.FindAsync(id);
-            return person;
-        }
-        /// <summary>
-        /// test
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        [Authorize]
-        [HttpGet()]
-        public ActionResult<IEnumerable<string>> Get(string str)
-        {
-            ///获取Token的三种方式
 
-            //第一种直接用JwtSecurityTokenHandler提供的read方法
-            var jwtHander = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtSecurityToken = jwtHander.ReadJwtToken(str);
-
-            //第二种 通过User对象获取
-            var sub = User.FindFirst(d => d.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
-
-            //第三种 通过Httpcontext上下文中直接获取
-            var name = _accessor.HttpContext.User.Identity.Name;
-            var Claims = _accessor.HttpContext.User.Claims;
-            var claimstype = (from item in Claims where item.Type == JwtRegisteredClaimNames.Email select item.Value).ToList();
-
-            return new string[] { JsonConvert.SerializeObject(jwtSecurityToken), sub, name, JsonConvert.SerializeObject(claimstype) };
-        }
-        [Authorize]
-        [HttpGet]
-        public ActionResult<ResponseResultModel<Object>> AuthCheck()
-        {
-            return Success("已授权请求");
-        }
-
-
-        [NonAction]
-        private int SearchUserID(string name) => _context.PersonInfo.Where(x => x.Name == name).Select(x => x.ID).FirstOrDefault();
         [NonAction]
         private bool PasswordCompare(byte[] fromDB, byte[] fromWeb)
         {

@@ -18,11 +18,7 @@ namespace person.Model
         /// </summary>
         [Description("用户密码")]
         public byte[] Password { get; set; }
-        /// <summary>
-        /// 是否为管理身份
-        /// </summary>
-        [Description("是否为管理身份")]
-        public int IsBoss { get; set; }
+
     }
     public class PersonLoginForm
     {
@@ -44,38 +40,20 @@ namespace person.Model
         /// </summary>
         [Description("用户账号")]
         public string Name { get; set; }
-        /// <summary>
-        /// 原密码
-        /// </summary>
-        [Description("用户老密码")]
-        public byte[] OldPassword { get; set; }
+
         /// <summary>
         /// 新密码
         /// </summary>
         [Description("用户新密码")]
         public byte[] NewPassword { get; set; }
     }
-    public class PersonInfoUpdateForm
+
+    public class PersonDeleteForm
     {
         /// <summary>
-        /// 用户账号
+        /// 删除用户名
         /// </summary>
-        [Description("用户账号")]
-        public string Name { get; set; }
-        /// <summary>
-        /// 性别
-        /// </summary>
-        [Description("性别")]
-        public int Sex { get; set; }
-        /// <summary>
-        /// 电话号码
-        /// </summary>
-        [Description("电话")]
-        public string Phone { get; set; }
-        /// <summary>
-        /// 部门
-        /// </summary>
-        [Description("部门")]
-        public string Apartment { get; set; }
+        [Description("删除用户名")]
+        public string UserName { get; set; }
     }
 }

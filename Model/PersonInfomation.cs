@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace person.Model
 {
-    [Table("PersonInfo")]
+    [Table("user_info")]
     public class PersonInfomation
     {
         /// <summary>
@@ -19,7 +19,7 @@ namespace person.Model
         /// 用户账号
         /// </summary>
         [Description("用户账号")]
-        public string Name { get; set; }
+        public string UserName { get; set; }
         /// <summary>
         /// 用户密码
         /// </summary>
@@ -29,21 +29,7 @@ namespace person.Model
         /// 是否为管理身份
         /// </summary>
         [Description("是否为管理身份")]
-        public int IsBoss { get; set; }
-        /// <summary>
-        /// 性别
-        /// </summary>
-        [Description("性别")]
-        public int Sex { get; set; }
-        /// <summary>
-        /// 电话号码
-        /// </summary>
-        [Description("电话")]
-        public string Phone { get; set; }
-        /// <summary>
-        /// 部门
-        /// </summary>
-        [Description("部门")]
-        public string Apartment { get; set; }
+        public int IsAdmin { get; set; }
+
     }
 }
