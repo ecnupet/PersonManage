@@ -23,6 +23,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.2.4" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
+		<PackageReference Include="typewags-aspnetcore" Version="0.1.1" />
 	</ItemGroup>
 	<ItemGroup>
 		<Protobuf Include="Protos\PersonService.proto" GrpcServices="Server" ProtoCompile="true" />

@@ -2,24 +2,16 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using person.Model;
 using person.Service;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using IdentityServer3.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace person
@@ -111,6 +103,17 @@ namespace person
             {
                 endpoints.MapGrpcService<PersonInfomationGet>();
                 endpoints.MapControllers();
+                endpoints.MapGet("/secret/apis", async context =>
+                {
+                    // This package just reflects the assembly and collects the `controller`s in the given assembly.
+                    // The controller methods are resolved as web APIs.
+                    var inspectResult = DarrenDanielDay.Typeawags.AspNetCoreWebAPIInspector.AllInOne(typeof(Program).Assembly);
+                    // Please use Newtonsoft.Json, not System.Text.Json.
+                    // System.Text.Json cannot serilize the InspectResult to json correctly.
+                    // You can also just return InspectResult in a controller's method.
+                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(inspectResult);
+                    await context.Response.WriteAsync(json, Encoding.UTF8);
+                });
             });
         }
     }
