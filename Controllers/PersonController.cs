@@ -17,7 +17,7 @@ using static person.Response.ResponseResult;
 namespace person.Controllers
 {
 
-    [Route("api")]
+    [Route("api/pm")]
     [ApiController]
     public class PersonController : ControllerBase
     {
