@@ -10,8 +10,6 @@
 	<ItemGroup>
 
 		<PackageReference Include="Grpc.AspNetCore" Version="2.36.0-pre1" />
-
-		<PackageReference Include="IdentityServer3" Version="2.6.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.3" />
 		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0-preview.1.21102.12" />

@@ -51,7 +51,7 @@ namespace person.Service
             var user = handler.ValidateToken(accessToken, para, out SecurityToken securityToken);
 
             }
-            catch (SecurityTokenValidationException exception)
+            catch (SecurityTokenValidationException)
             {
                 return false;
             }

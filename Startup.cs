@@ -86,7 +86,7 @@ namespace person
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseHttpsRedirection();
+
 
             app.UseRouting();
 
