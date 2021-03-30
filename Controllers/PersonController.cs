@@ -89,6 +89,20 @@ namespace person.Controllers
             }
         }
         /// <summary>
+        /// 用户信息查询
+        /// </summary>
+        /// <param name="personPasswordChangeForm"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("user/userinfo")]
+        [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
+        public  ActionResult<ResponseResultModel<PersonInfoResponse>> PersonInfoGet()
+        {
+            var user = _accessor.HttpContext.User.Identity.Name;
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "IsAdmin").First().Value;
+            return Success(new PersonInfoResponse { Name = user, IsAdmin = int.Parse(isAdmin) }, "查询成功");
+        }
+        /// <summary>
         /// 用户改密码
         /// </summary>
         /// <param name="personPasswordChangeForm"></param>
@@ -117,7 +131,11 @@ namespace person.Controllers
                 return Success("修改成功");
             }
         }
-
+        /// <summary>
+        /// 管理员删除用户
+        /// </summary>
+        /// <param name="personDeleteForm"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("admin/user")]
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]

@@ -9,9 +9,10 @@ namespace person.Model
 {
     public class PersonContext :DbContext
     {
+
         public PersonContext(DbContextOptions<PersonContext> options) : base(options)
         {
-
+            
         }
         public DbSet<PersonInfomation> PersonInfo { get; set; }
 
