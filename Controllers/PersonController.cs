@@ -112,7 +112,7 @@ namespace person.Controllers
         [HttpPost]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonChangeSerect(PersonPasswordChangeForm personPasswordChangeForm)
         {
-            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "IsAdmin").First().Value;
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
             if (!Convert.ToBoolean(isAdmin))
             {
                 return Fail("无权更改");
