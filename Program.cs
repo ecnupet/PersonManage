@@ -23,7 +23,7 @@ namespace person
                 {
                     webBuilder.ConfigureKestrel(options =>
                     {
-                        options.Listen(IPAddress.Any, 5000, listenOptions =>
+                        options.Listen(IPAddress.Any, 5001, listenOptions =>
                         {
                             listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
                         });
