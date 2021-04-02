@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /source
 EXPOSE 5000
-EXPOSE 5001
+
 # copy csproj and restore as distinct layers
 COPY *.sln .
 COPY *.csproj .
@@ -16,5 +16,8 @@ RUN dotnet publish -c release -o /app -r linux-arm64 --self-contained false --no
 FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim-arm64v8
 WORKDIR /app
 COPY --from=build /app ./
-ENV ASPNETCORE_URLS="http://+:5000;https://+:5001"
+
+
+ENV ASPNETCORE_URLS="http://+:5000"
+
 ENTRYPOINT ["./person"]
