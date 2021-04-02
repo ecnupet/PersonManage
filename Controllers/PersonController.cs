@@ -37,8 +37,7 @@ namespace person.Controllers
         /// <returns>
         /// 
         /// </returns>
-        [Route("user/logon")]
-        [HttpPost]
+        [HttpPost("user/logon")]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonLogon(PersonLogonForm personLogonForm)
         {
             if (_context.PersonInfo.Where(x => x.UserName == personLogonForm.Name).Select(x => x).Count() != 0)
@@ -54,8 +53,7 @@ namespace person.Controllers
         /// </summary>
         /// <param name="personLogin"></param>
         /// <returns></returns>
-        [Route("user/login")]
-        [HttpPost]
+        [HttpPost("user/login")]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonLogin(PersonLoginForm personLogin)
         {
             var result = _context.PersonInfo.Where(x => x.UserName == personLogin.Name).Select(x => x);
@@ -93,13 +91,12 @@ namespace person.Controllers
         /// </summary>
         /// <param name="personPasswordChangeForm"></param>
         /// <returns></returns>
-        [HttpGet]
-        [Route("user/userinfo")]
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
+        [HttpGet("user/userinfo")]
         public  ActionResult<ResponseResultModel<PersonInfoResponse>> PersonInfoGet()
         {
             var user = _accessor.HttpContext.User.Identity.Name;
-            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "IsAdmin").First().Value;
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
             return Success(new PersonInfoResponse { Name = user, IsAdmin = int.Parse(isAdmin) }, "查询成功");
         }
         /// <summary>
@@ -107,9 +104,8 @@ namespace person.Controllers
         /// </summary>
         /// <param name="personPasswordChangeForm"></param>
         /// <returns></returns>
-        [Route("admin/userinfo")]
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
-        [HttpPost]
+        [HttpPost("admin/userinfo")]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonChangeSerect(PersonPasswordChangeForm personPasswordChangeForm)
         {
             var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
@@ -136,9 +132,8 @@ namespace person.Controllers
         /// </summary>
         /// <param name="personDeleteForm"></param>
         /// <returns></returns>
-        [HttpDelete]
-        [Route("admin/user")]
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
+        [HttpDelete("admin/user")]
         public async Task<ActionResult<ResponseResultModel<Object>>> DeleteUser(PersonDeleteForm personDeleteForm)
         {
             var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "IsAdmin").First().Value;
@@ -165,15 +160,18 @@ namespace person.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
-        [HttpPost]
-        [Route("user/logout")]
+        [HttpPost("user/logout")]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonLogout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Success("退出登录");
         }
 
-
+        [HttpGet("user/test")]
+        public  ActionResult<ResponseResultModel<Object>> Test()
+        {
+            return Success("注册成功");
+        }
 
         [NonAction]
         private bool PasswordCompare(byte[] fromDB, byte[] fromWeb)
