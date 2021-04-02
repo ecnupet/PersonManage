@@ -61,7 +61,7 @@ namespace person.Controllers
             var result = _context.PersonInfo.Where(x => x.UserName == personLogin.Name).Select(x => x);
             if (result.Count() == 0)
             {
-                return NotFound("用户名不存在");
+                return ResponseResult.NotFound("用户名不存在");
             }
             var res = result.First();
             if (PasswordCompare(res.Password,personLogin.Password))
