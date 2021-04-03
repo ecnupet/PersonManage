@@ -22,7 +22,7 @@ namespace person.Service
             string accessToken = null;
             var a = context.GetHttpContext().User.Claims.Where(c => c.Type == "accesss_token").First();
             var name = context.GetHttpContext().User.Identity.Name;
-            var isBoss = context.GetHttpContext().User.Claims.Where(c => c.Type == "IsAdmin").First();
+            var isBoss = context.GetHttpContext().User.Claims.Where(c => c.Type == "isAdmin").First();
             var id = context.GetHttpContext().User.Claims.Where(c => c.Type == "Name").First();
             Console.WriteLine(a.ToString());
             accessToken = a.Value;

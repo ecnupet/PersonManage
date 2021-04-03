@@ -10,4 +10,11 @@ namespace person.Model
         public string Name { get; set; }
         public int IsAdmin { get; set; }
     }
+    public class AuthCheckResponse
+    {
+        public string IsAdmin { get; set; }
+        public string ID { get; set; }
+        public string Name { get; set; }
+        public bool Message { get; set; }
+    }
 }

@@ -136,7 +136,7 @@ namespace person.Controllers
         [HttpDelete("admin/user")]
         public async Task<ActionResult<ResponseResultModel<Object>>> DeleteUser(PersonDeleteForm personDeleteForm)
         {
-            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "IsAdmin").First().Value;
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
             if (!Convert.ToBoolean(isAdmin))
             {
                 return Fail("无权更改");
@@ -154,6 +154,25 @@ namespace person.Controllers
                 return Success("修改成功");
             }
         }
+        /// <summary>
+        /// http鉴权
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
+        [HttpGet("auth/check")]
+        public ActionResult<ResponseResultModel<AuthCheckResponse>> AuthCheck()
+        {
+            string accessToken = null;
+            var a = _accessor.HttpContext.User.Claims.Where(c => c.Type == "accesss_token").First();
+            var name = _accessor.HttpContext.User.Identity.Name;
+            var isBoss = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First();
+            var id = _accessor.HttpContext.User.Claims.Where(c => c.Type == "Name").First();
+            Console.WriteLine(a.ToString());
+            accessToken = a.Value;
+            var res = AuthService.Validate(accessToken);
+            return Success(new AuthCheckResponse { Message = res, ID = id.Value, Name = name, IsAdmin = isBoss.Value},"权限已验证");
+        }
+
 
         /// <summary>
         /// 退出登录
