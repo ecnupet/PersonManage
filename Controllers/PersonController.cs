@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using person.Model;
 using person.Response;
@@ -24,11 +25,13 @@ namespace person.Controllers
         public PersonContext _context { get; }
         public IPersonAuthService AuthService { get; set; }
         public IHttpContextAccessor _accessor { get; set; }
-        public PersonController(PersonContext context, IPersonAuthService authService, IHttpContextAccessor http)
+        public ILogger<PersonController> _logger { get; set; }
+        public PersonController(PersonContext context, IPersonAuthService authService, IHttpContextAccessor http, ILogger<PersonController> logger)
         {
             _context = context;
             AuthService = authService;
             _accessor = http;
+            _logger = logger;
         }
         /// <summary>
         /// 注册接口（todo：等待前端对接时加入md5转换）
