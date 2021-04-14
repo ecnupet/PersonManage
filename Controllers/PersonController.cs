@@ -119,7 +119,7 @@ namespace person.Controllers
             var result = _context.PersonInfo.Where(x => x.UserName == personPasswordChangeForm.Name).Select(x => x);
             if (result.Count() == 0)
             {
-                return NotFound("用户名不存在");
+                return ResponseResult.NotFound("用户名不存在");
             }
             else
             {
@@ -147,7 +147,7 @@ namespace person.Controllers
             var result = _context.PersonInfo.Where(x => x.UserName == personDeleteForm.UserName).Select(x => x);
             if (result.Count() == 0)
             {
-                return NotFound("用户名不存在");
+                return ResponseResult.NotFound("用户名不存在");
             }
             else
             {
