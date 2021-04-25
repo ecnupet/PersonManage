@@ -20,12 +20,12 @@ namespace person.Service
             Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("494812665@qq.com"));
         }
 
-        public string CreateAuth(string name, int IsBoss)
+        public string CreateAuth(string name, Auth auth)
         {
             var claim = new Claim[]
             {
                 new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Role,IsBoss.ToString())
+                new Claim(ClaimTypes.Role,auth.ToString())
             };
             var token = new JwtSecurityToken(
                 claims: claim,//声明的数组

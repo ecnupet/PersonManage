@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace person.Model
 {
+    public enum Auth
+    {
+        Normal,
+        Admin,
+        SuperAdmin
+    }
     [Table("user_info")]
     public class PersonInfomation
     {
@@ -29,7 +35,7 @@ namespace person.Model
         /// 是否为管理身份
         /// </summary>
         [Description("是否为管理身份")]
-        public int IsAdmin { get; set; }
+        public Auth Authorization { get; set; }
 
     }
 }

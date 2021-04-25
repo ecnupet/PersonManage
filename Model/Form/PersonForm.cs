@@ -33,7 +33,7 @@ namespace person.Model
         [Description("用户密码")]
         public byte[] Password { get; set; }
     }
-    public class PersonInfoChangeForm
+    public class PersonCreateForm
     {
         /// <summary>
         /// 用户账号
@@ -44,15 +44,35 @@ namespace person.Model
         /// <summary>
         /// 新密码
         /// </summary>
-        [Description("用户新密码")]
-        public byte[] NewPassword { get; set; }
+        [Description("用户密码")]
+        public byte[] Password { get; set; }
         /// <summary>
         /// 是否为管理身份
         /// </summary>
         [Description("是否为管理身份")]
-        public int IsAdmin { get; set; }
+        public Auth Authorization { get; set; }
     }
-
+    public class PersonAuthChangeForm
+    {
+        /// <summary>
+        /// 用户账号
+        /// </summary>
+        [Description("用户账号")]
+        public string Name { get; set; }
+        /// <summary>
+        /// 是否为管理身份
+        /// </summary>
+        [Description("是否为管理身份")]
+        public Auth Authorization { get; set; }
+    }
+    public class PersonSecretResetForm
+    {
+        /// <summary>
+        /// 用户账号
+        /// </summary>
+        [Description("用户账号")]
+        public string Name { get; set; }
+    }
     public class PersonDeleteForm
     {
         /// <summary>

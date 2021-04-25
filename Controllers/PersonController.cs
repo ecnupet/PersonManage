@@ -67,12 +67,12 @@ namespace person.Controllers
             var res = result.First();
             if (PasswordCompare(res.Password,personLogin.Password))
             {
-                var isAdmin = result.Select(x => x.IsAdmin).FirstOrDefault();
+                var isAdmin = result.Select(x => x.Authorization).FirstOrDefault();
                 var auth = AuthService.CreateAuth(personLogin.Name, isAdmin);
                 var claims = new Claim[]
                 {
                     new Claim(ClaimTypes.Name, personLogin.Name),
-                    new Claim("isAdmin", isAdmin.ToString()),
+                    new Claim("authorization", ((int)isAdmin).ToString()),
                     new Claim("Name", result.Select(x => x.UserName).First().ToString()),
                     new Claim("accesss_token", auth)
                 };
@@ -99,24 +99,24 @@ namespace person.Controllers
         public  ActionResult<ResponseResultModel<PersonInfoResponse>> PersonInfoGet()
         {
             var user = _accessor.HttpContext.User.Identity.Name;
-            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
-            return Success(new PersonInfoResponse { Name = user, IsAdmin = int.Parse(isAdmin) }, "查询成功");
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "authorization").First().Value;
+            return Success(new PersonInfoResponse { Name = user, Authorization = int.Parse(isAdmin) }, "查询成功");
         }
         /// <summary>
-        /// 管理员修改用户密码和权限
+        /// 管理员修改用户权限
         /// </summary>
-        /// <param name="personInfoChangeForm"></param>
+        /// <param name="personAuthForm"></param>
         /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
         [HttpPost("admin/infochange")]
-        public async Task<ActionResult<ResponseResultModel<Object>>> PersonInfoChange(PersonInfoChangeForm personInfoChangeForm)
+        public async Task<ActionResult<ResponseResultModel<Object>>> PersonInfoChange(PersonAuthChangeForm personAuthForm)
         {
-            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
-            if (!Convert.ToBoolean(isAdmin))
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "authorization").First().Value;
+            if (int.Parse(isAdmin) <= 1)
             {
-                return Fail("无权更改");
+                return ResponseResult.Unauthorized("无权更改");
             }
-            var result = _context.PersonInfo.Where(x => x.UserName == personInfoChangeForm.Name).Select(x => x);
+            var result = _context.PersonInfo.Where(x => x.UserName == personAuthForm.Name).Select(x => x);
             if (result.Count() == 0)
             {
                 return ResponseResult.NotFound("用户名不存在");
@@ -124,20 +124,74 @@ namespace person.Controllers
             else
             {
                 var res = result.First();
-                res.Password = personInfoChangeForm.NewPassword;
-                res.IsAdmin = personInfoChangeForm.IsAdmin;
+                res.Authorization = personAuthForm.Authorization;
                 _context.PersonInfo.Update(res);
                 await _context.SaveChangesAsync();
                 return Success("修改成功");
             }
         }
+        /// <summary>
+        /// 管理员重置密码
+        /// </summary>
+        /// <param name="personSecretResetForm"></param>
+        /// <returns></returns>
+        [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
+        [HttpPost("admin/infochange")]
+        public async Task<ActionResult<ResponseResultModel<Object>>> PersonSecretReset(PersonSecretResetForm personSecretResetForm)
+        {
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "authorization").First().Value;
+            if (int.Parse(isAdmin) <= 1)
+            {
+                return ResponseResult.Unauthorized("无权更改");
+            }
+            var result = _context.PersonInfo.Where(x => x.UserName == personSecretResetForm.Name).Select(x => x);
+            if (result.Count() == 0)
+            {
+                return ResponseResult.NotFound("用户名不存在");
+            }
+            else
+            {
+                var res = result.First();
+                res.Password = System.Text.Encoding.Default.GetBytes("123456789");
+                _context.PersonInfo.Update(res);
+                await _context.SaveChangesAsync();
+                return Success("修改成功");
+            }
+        }
+        /// <summary>
+        /// 管理员创建用户
+        /// </summary>
+        /// <param name="personCreateForm"></param>
+        /// <returns></returns>
+        [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
+        [HttpPost("admin/personcreate")]
+        public async Task<ActionResult<ResponseResultModel<Object>>> PersonCreate(PersonCreateForm personCreateForm)
+        {
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "authorization").First().Value;
+            if (int.Parse(isAdmin) <= 1)
+            {
+                return ResponseResult.Unauthorized("无权更改");
+            }
+            var result = _context.PersonInfo.Where(x => x.UserName == personCreateForm.Name).Select(x => x);
+            if (result.Count() != 0)
+            {
+                return ResponseResult.Exist("用户名已存在");
+            }
+            else
+            {
+                _context.PersonInfo.Add(new PersonInfomation { Authorization = personCreateForm.Authorization, Password = personCreateForm.Password, UserName = personCreateForm.Name });
+                await _context.SaveChangesAsync();
+                return Success("修改成功");
+            }
+        }
+
 
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
         [HttpGet("admin/userlist")]
         public  ActionResult<ResponseResultModel<SearchResult<PersonInfomation>>> UserSearchAsync(int page, int pageSize, string keyWord)
         {
-            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
-            if (!Convert.ToBoolean(isAdmin))
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "authorization").First().Value;
+            if (int.Parse(isAdmin) <= 1)
             {
                 return ResponseResult.Unauthorized(default(SearchResult<PersonInfomation>),"无权查询");
             }
@@ -157,10 +211,10 @@ namespace person.Controllers
         [HttpDelete("admin/user")]
         public async Task<ActionResult<ResponseResultModel<Object>>> DeleteUser(PersonDeleteForm personDeleteForm)
         {
-            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
-            if (!Convert.ToBoolean(isAdmin))
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "authorization").First().Value;
+            if (int.Parse(isAdmin) <= 1)
             {
-                return Fail("无权更改");
+                return ResponseResult.Unauthorized("无权更改");
             }
             var result = _context.PersonInfo.Where(x => x.UserName == personDeleteForm.UserName).Select(x => x);
             if (result.Count() == 0)
@@ -186,12 +240,12 @@ namespace person.Controllers
             string accessToken = null;
             var a = _accessor.HttpContext.User.Claims.Where(c => c.Type == "accesss_token").First();
             var name = _accessor.HttpContext.User.Identity.Name;
-            var isBoss = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First();
+            var authorization = _accessor.HttpContext.User.Claims.Where(c => c.Type == "authorization").First();
             var id = _accessor.HttpContext.User.Claims.Where(c => c.Type == "Name").First();
             Console.WriteLine(a.ToString());
             accessToken = a.Value;
             var res = AuthService.Validate(accessToken);
-            return Success(new AuthCheckResponse { Message = res, ID = id.Value, Name = name, IsAdmin = isBoss.Value},"权限已验证");
+            return Success(new AuthCheckResponse { Message = res, ID = id.Value, Name = name, Authorization = authorization.Value},"权限已验证");
         }
 
 
