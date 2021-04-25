@@ -33,7 +33,7 @@ namespace person.Model
         [Description("用户密码")]
         public byte[] Password { get; set; }
     }
-    public class PersonPasswordChangeForm
+    public class PersonInfoChangeForm
     {
         /// <summary>
         /// 用户账号
@@ -46,6 +46,11 @@ namespace person.Model
         /// </summary>
         [Description("用户新密码")]
         public byte[] NewPassword { get; set; }
+        /// <summary>
+        /// 是否为管理身份
+        /// </summary>
+        [Description("是否为管理身份")]
+        public int IsAdmin { get; set; }
     }
 
     public class PersonDeleteForm
@@ -55,5 +60,10 @@ namespace person.Model
         /// </summary>
         [Description("删除用户名")]
         public string UserName { get; set; }
+    }
+    public class SearchResult<T>
+    {
+        public int Count { get; set; }
+        public List<T> Records { get; set; }
     }
 }

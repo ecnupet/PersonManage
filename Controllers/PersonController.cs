@@ -103,20 +103,20 @@ namespace person.Controllers
             return Success(new PersonInfoResponse { Name = user, IsAdmin = int.Parse(isAdmin) }, "查询成功");
         }
         /// <summary>
-        /// 用户改密码
+        /// 管理员修改用户密码和权限
         /// </summary>
-        /// <param name="personPasswordChangeForm"></param>
+        /// <param name="personInfoChangeForm"></param>
         /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
-        [HttpPost("admin/userinfo")]
-        public async Task<ActionResult<ResponseResultModel<Object>>> PersonChangeSerect(PersonPasswordChangeForm personPasswordChangeForm)
+        [HttpPost("admin/infochange")]
+        public async Task<ActionResult<ResponseResultModel<Object>>> PersonInfoChange(PersonInfoChangeForm personInfoChangeForm)
         {
             var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
             if (!Convert.ToBoolean(isAdmin))
             {
                 return Fail("无权更改");
             }
-            var result = _context.PersonInfo.Where(x => x.UserName == personPasswordChangeForm.Name).Select(x => x);
+            var result = _context.PersonInfo.Where(x => x.UserName == personInfoChangeForm.Name).Select(x => x);
             if (result.Count() == 0)
             {
                 return ResponseResult.NotFound("用户名不存在");
@@ -124,12 +124,30 @@ namespace person.Controllers
             else
             {
                 var res = result.First();
-                res.Password = personPasswordChangeForm.NewPassword;
+                res.Password = personInfoChangeForm.NewPassword;
+                res.IsAdmin = personInfoChangeForm.IsAdmin;
                 _context.PersonInfo.Update(res);
                 await _context.SaveChangesAsync();
                 return Success("修改成功");
             }
         }
+
+        [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
+        [HttpGet("admin/userlist")]
+        public  ActionResult<ResponseResultModel<SearchResult<PersonInfomation>>> UserSearchAsync(int page, int pageSize, string keyWord)
+        {
+            var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "isAdmin").First().Value;
+            if (!Convert.ToBoolean(isAdmin))
+            {
+                return ResponseResult.Unauthorized(default(SearchResult<PersonInfomation>),"无权查询");
+            }
+            var key = keyWord ?? "";
+            var number = _context.PersonInfo.Where(x => x.UserName.Contains(key)).Count();
+            var personInfomations = _context.PersonInfo.Where(x => x.UserName.Contains(key)).Select(x => x).Take(page * pageSize).Skip((page - 1) * pageSize).ToList();
+            var res = new SearchResult<PersonInfomation> { Records = personInfomations, Count = number };
+            return Success(res, "查询成功");
+        }
+
         /// <summary>
         /// 管理员删除用户
         /// </summary>
