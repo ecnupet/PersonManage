@@ -124,6 +124,14 @@ namespace person.Controllers
             else
             {
                 var res = result.First();
+                if (res.Authorization == Auth.SuperAdmin)
+                {
+                    return Fail("无权操作超级管理员");
+                }
+                if (personAuthForm.Authorization == Auth.SuperAdmin)
+                {
+                    return Fail("无法提升权限至超级管理员");
+                }
                 res.Authorization = personAuthForm.Authorization;
                 _context.PersonInfo.Update(res);
                 await _context.SaveChangesAsync();
@@ -179,6 +187,10 @@ namespace person.Controllers
             }
             else
             {
+                if(personCreateForm.Authorization == Auth.SuperAdmin)
+                {
+                    return Fail("无权创建超级管理员");
+                }
                 _context.PersonInfo.Add(new PersonInfomation { Authorization = personCreateForm.Authorization, Password = personCreateForm.Password, UserName = personCreateForm.Name });
                 await _context.SaveChangesAsync();
                 return Success("修改成功");
@@ -224,6 +236,10 @@ namespace person.Controllers
             else
             {
                 var res = result.First();
+                if (res.Authorization == Auth.SuperAdmin)
+                {
+                    return Fail("超级管理员无法删除");
+                }
                 _context.PersonInfo.Remove(res);
                 await _context.SaveChangesAsync();
                 return Success("修改成功");
