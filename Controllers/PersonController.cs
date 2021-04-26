@@ -136,7 +136,7 @@ namespace person.Controllers
         /// <param name="personSecretResetForm"></param>
         /// <returns></returns>
         [Authorize(AuthenticationSchemes = "Bearer,Cookies")]
-        [HttpPost("admin/infochange")]
+        [HttpPost("admin/secretreset")]
         public async Task<ActionResult<ResponseResultModel<Object>>> PersonSecretReset(PersonSecretResetForm personSecretResetForm)
         {
             var isAdmin = _accessor.HttpContext.User.Claims.Where(c => c.Type == "authorization").First().Value;
