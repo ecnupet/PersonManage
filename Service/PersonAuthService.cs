@@ -32,6 +32,7 @@ namespace person.Service
                 expires: DateTime.Now.AddDays(1),//当前时间加一小时，一小时后过期
                 signingCredentials: new SigningCredentials(Key, SecurityAlgorithms.HmacSha256));
             var jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+            Console.WriteLine(jwtToken.ToString());
             return  jwtToken ;
         }
         public bool Validate(string accessToken)

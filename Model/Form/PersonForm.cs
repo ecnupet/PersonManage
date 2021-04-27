@@ -72,6 +72,11 @@ namespace person.Model
         /// </summary>
         [Description("用户账号")]
         public string Name { get; set; }
+        /// <summary>
+        /// 新密码
+        /// </summary>
+        [Description("用户密码")]
+        public byte[] Password { get; set; }
     }
     public class PersonDeleteForm
     {

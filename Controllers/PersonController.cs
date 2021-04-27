@@ -160,7 +160,7 @@ namespace person.Controllers
             else
             {
                 var res = result.First();
-                res.Password = System.Text.Encoding.Default.GetBytes("123456789");
+                res.Password = personSecretResetForm.Password;
                 _context.PersonInfo.Update(res);
                 await _context.SaveChangesAsync();
                 return Success("修改成功");
